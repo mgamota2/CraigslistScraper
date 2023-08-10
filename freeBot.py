@@ -7,11 +7,14 @@ from tkinter import ttk
 import smtplib
 from email.mime.text import MIMEText
 
-CRAIGSLIST = "https://sfbay.craigslist.org/search/sby/zip?nh=109&nh=119&nh=31&nh=32&nh=34&nh=35&nh=36&nh=37&nh=38&nh=39&nh=40&nh=41&nh=43&nh=44&nh=45#search=1~gallery~0~0"
+
 NEXTDOOR=''
 
 class SCRAPER:
-    def __init__(self, frequency, email):
+    def __init__(self, frequency, email, CRAIGSLIST):
+        print(CRAIGSLIST)
+        self.CRAIGSLIST=CRAIGSLIST
+
         self.last_item_cl=''
         self.new_items_cl=[]
 
@@ -47,7 +50,7 @@ class SCRAPER:
         return
 
     def cl_init(self):
-        page = requests.get(CRAIGSLIST)
+        page = requests.get(self.CRAIGSLIST)
         page_html = BeautifulSoup(page.text, 'html.parser')
 
         post = page_html.find('li', class_="cl-static-search-result")
@@ -57,7 +60,7 @@ class SCRAPER:
 
     def cl_update(self):
         #Get HTML
-        page = requests.get(CRAIGSLIST)
+        page = requests.get(self.CRAIGSLIST)
         page_html = BeautifulSoup(page.text, 'html.parser')
 
         #Return list of posts, iterate, and find if there are new postings
@@ -83,9 +86,9 @@ class SCRAPER:
             pass
         
     
-def main(email_addr, x, cl, nd):
+def main(email_addr, x, cl, nd, cl_url):
     #Init scraper object
-    my_scraper = SCRAPER(x, email_addr)
+    my_scraper = SCRAPER(x, email_addr, cl_url)
     
     my_scraper.cl_init()
     if nd==1:
@@ -135,11 +138,15 @@ a=tk.Entry(m, width=35)
 a.pack()
 label=tk.Label(m, text="minutes", font=('Calibri 8')).pack()
 
+label=tk.Label(m, text="Enter Craigslist URL", font=('Calibri 15')).pack()
+CRAIGSLIST = tk.Entry(m, width=35)
+CRAIGSLIST.pack()
+
 label=tk.Label(m, text="Enter User Email", font=('Calibri 15')).pack()
 email_addr=tk.Entry(m, width=35)
 email_addr.pack()
 
-C3 = tk.Button(m, text="Go", command=lambda: main(str(email_addr.get()), int(a.get()), CheckVar1.get(), CheckVar2.get()))
+C3 = tk.Button(m, text="Go", command=lambda: main(str(email_addr.get()), int(a.get()), CheckVar1.get(), CheckVar2.get(), str(CRAIGSLIST.get())))
 C3.pack()
 
 label=tk.Label(m, text="", font=('Calibri 15'))
